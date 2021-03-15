@@ -1,6 +1,6 @@
 import email
 from django.core.management.color import Style
-from .models import Blog,Category,Tag,Comment
+from blog.models import Blog,Category,Tag,Comment
 from rest_framework import serializers
 from django.contrib.auth.models import User
 
@@ -28,23 +28,15 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class BlogSerializer(serializers.ModelSerializer):
-    # tag=TagSerializer(many=True,read_only=True)
-    active_blog=serializers.SerializerMethodField()
-
-    def get_active_blog(self,obj):
-        return Blog.objects.filter(is_active=True).count()
 
     class Meta:
         model = Blog
-        fields = ['id',  'name', 'is_active', 'author_name','category','tag','active_blog']
+        fields = ['id',  'name', 'is_active', 'author_name','category','tag','order']
 
+        extra_kwargs = {
+            'is_active': {'read_only': True}
+        }
 
-    def to_representation(self, instance):
-        rep = super(BlogSerializer, self).to_representation(instance)
-        rep['author_name'] = instance.author_name.username
-        rep['category']=instance.category.title
-
-        return rep
 
 
 

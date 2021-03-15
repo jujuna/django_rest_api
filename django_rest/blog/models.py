@@ -24,9 +24,12 @@ class Blog(models.Model):
     created=models.DateTimeField(auto_now_add=True)
     author_name=models.ForeignKey(User, on_delete=models.CASCADE)
     is_active=models.BooleanField(default=True)
+    order=models.IntegerField(blank=False,null=False,default=0)
     category=models.ForeignKey(Category, on_delete=models.CASCADE)
     tag=models.ManyToManyField(Tag)
 
+    class Meta:
+        ordering=['order']
 
     def __str__(self):
         return self.name
