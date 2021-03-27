@@ -26,10 +26,10 @@ class Blog(models.Model):
     is_active=models.BooleanField(default=True)
     order=models.IntegerField(blank=False,null=False,default=0)
     category=models.ForeignKey(Category, on_delete=models.CASCADE)
-    tag=models.ManyToManyField(Tag)
+    tag=models.ManyToManyField(Tag,blank=True)
 
     class Meta:
-        ordering=['order']
+        ordering=['order','id']
 
     def __str__(self):
         return self.name

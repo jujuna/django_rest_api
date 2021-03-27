@@ -13,5 +13,5 @@ urlpatterns = [
     path('login/', views.CustomAuthToken.as_view(), name="login"),
     path('users/', views.ListUser.as_view(), name="list"),
     path('logout/', views.Logout.as_view(), name="logout"),
-    path('update/<int:pk>/<int:order>/',views.UpdateOrder.as_view(), name='order-update')
+    path('update/',views.UpdateOrder.as_view(), name='order-update'),
 ]

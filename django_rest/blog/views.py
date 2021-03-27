@@ -23,7 +23,11 @@ from rest_framework.permissions import AllowAny, IsAuthenticated,IsAdminUser
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.serializers import AuthTokenSerializer
-from  django_filters.rest_framework import  DjangoFilterBackend
+from django_filters.rest_framework import  DjangoFilterBackend
+from rest_framework.decorators import action
+
+
+
 
 
 class TagList(generics.ListCreateAPIView):
@@ -34,6 +38,10 @@ class TagList(generics.ListCreateAPIView):
     filter_fields = ['id']
 
     def create(self, request, *args, **kwargs):
+        data=TagSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        a=data.validated_data['title']
+        print(a)
         return super().create(request, *args, **kwargs)
 
 class CategoryList(generics.ListCreateAPIView):
@@ -55,7 +63,7 @@ class CommentList(generics.ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
-class BlogList(generics.ListCreateAPIView,generics.UpdateAPIView):
+class BlogList(generics.ListCreateAPIView):
     # permission_classes=[IsAuthenticated]
     queryset=Blog.objects.all()
     serializer_class=BlogSerializer
@@ -71,9 +79,6 @@ class BlogList(generics.ListCreateAPIView,generics.UpdateAPIView):
             "active blog":Blog.objects.filter(is_active=True).count()
         }
         return  Response(data)
-
-
-
 
 
 
@@ -107,19 +112,23 @@ class BlogDetail(generics.RetrieveUpdateDestroyAPIView):
     #     return [permissions.IsAuthenticated()]
 
 
-class UpdateOrder(generics.ListAPIView,UpdateAPIView):
+class UpdateOrder(generics.UpdateAPIView):
     serializer_class = BlogSerializer
     queryset = Blog.objects.all()
 
-    def update(self, request, *args, **kwargs):
-        if len(Blog.objects.all())>0:
-            pk_order=Blog.objects.filter(id=self.kwargs.get('pk')).values_list('order', flat=True)[0]
-            Blog.objects.filter(order=self.kwargs.get('order')).update(order=pk_order)
-            Blog.objects.filter(id=self.kwargs.get('pk')).update(order=self.kwargs.get('order'))
-            data=serializers.serialize('json', self.get_queryset())
-            return Response(data,content_type="application/json")
-        else:
-            return Response("მხოლოდ 1 ბლოგი გაქვს!")
+
+    def put(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data, many=isinstance(request.data, list))
+        serializer.is_valid(raise_exception=True)
+        for i in serializer.validated_data:
+            blog = Blog.objects.get(id=i["id"])
+            blog.order=i["order"]
+            blog.save()
+
+        return Response(status=status.HTTP_202_ACCEPTED)
+
+
+
 
 
 class CreateUser(generics.CreateAPIView):

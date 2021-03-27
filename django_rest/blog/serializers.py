@@ -34,9 +34,9 @@ class BlogSerializer(serializers.ModelSerializer):
         fields = ['id',  'name', 'is_active', 'author_name','category','tag','order']
 
         extra_kwargs = {
-            'is_active': {'read_only': True}
+            'is_active': {'read_only': True},
+            'id':{"read_only":False}
         }
-
 
 
 
